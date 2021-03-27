@@ -2,7 +2,9 @@ from TopicGatherer import TopicGatherer
 from ProjectGatherer import ProjectGatherer
 from DescriptionAcquirer import DescriptionAcquirer
 import pickle
+import os
 import sys
+import glo
 
 
 class DataCollector:
@@ -12,7 +14,7 @@ class DataCollector:
         self.topics = topics
         pass
 
-    def collect_data(self):
+    def collect_store_data(self):
         self.data.clear()
 
         topic_gatherer = TopicGatherer()
@@ -24,17 +26,20 @@ class DataCollector:
         for topic in topics:
             name = topic[0]
             self.data[name] = {}
-            print(name)
 
             project_gatherer.set_url(topic[1])
             projects = project_gatherer.project_names_with_descriptions(limit=self.projects_per_topic)
 
             for project in projects:
                 project_name = project[0]
-                print('    ', project_name)
                 description_acquirer.set_url(project[1])
                 description = description_acquirer.acquire_description()
                 self.data[name][project_name] = description
+
+            with open(os.path.join(glo.pickles_path, (name + '.pickle')), 'wb') as file:
+                pickle.dump(self.data[name], file)
+
+            print(name, '...')
 
             limit -= 1
             if limit == 0:
@@ -59,8 +64,4 @@ if __name__ == '__main__':
         projects_per_topic = 1000
 
     data_collector = DataCollector(topics, projects_per_topic)
-    data_collector.collect_data()
-    data = data_collector.get_data()
-
-    with open('data.pickle', 'wb') as file:
-        pickle.dump(data, file)
+    data_collector.collect_store_data()
