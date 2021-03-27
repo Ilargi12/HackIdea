@@ -15,25 +15,28 @@ class ProjectGatherer:
         html_content = r.text
         soup = BeautifulSoup(html_content, 'lxml')
 
-        div = soup.find('div', class_='topic p-responsive container-xl')
-        if not div:
-            div = soup.find('div', class_='topic p-responsive container-lg')
-        articles = div.find_all('article')
+        try:
+            div = soup.find('div', class_='topic p-responsive container-xl')
+            if not div:
+                div = soup.find('div', class_='topic p-responsive container-lg')
+            articles = div.find_all('article')
 
-        project_names = []
-        project_urls = []
+            project_names = []
+            project_urls = []
 
-        for article in articles:
-            div_low = article.find('div', class_='px-3')
-            if div_low:
-                div_low_low = div_low.find('div', class_='d-flex flex-auto')
-                a = div_low_low.find('a', class_='text-bold')
-                path_list = a['href'].split('/')
-                project_names.append(path_list[-1])
-                project_urls.append(glo.github_url + a['href'])
-                limit -= 1
-                if limit == 0:
-                    break
+            for article in articles:
+                div_low = article.find('div', class_='px-3')
+                if div_low:
+                    div_low_low = div_low.find('div', class_='d-flex flex-auto')
+                    a = div_low_low.find('a', class_='text-bold')
+                    path_list = a['href'].split('/')
+                    project_names.append(path_list[-1])
+                    project_urls.append(glo.github_url + a['href'])
+                    limit -= 1
+                    if limit == 0:
+                        break
+        except:
+            return []
 
         project_data = list(zip(project_names, project_urls))
         return project_data
