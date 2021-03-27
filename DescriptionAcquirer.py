@@ -17,9 +17,12 @@ class DescriptionAcquirer:
         readme = soup.find('div', id='readme')
         if not readme:
             return ''
-        
         div = readme.find('div', class_='Box-body px-5 pb-5')
+        if not div:
+            return ''
         art = div.find('article', class_='markdown-body entry-content container-lg')
+        if not art:
+            return ''
         ps = art.find_all('p')
 
         description = ''
