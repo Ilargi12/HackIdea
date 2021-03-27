@@ -10,7 +10,7 @@ class ProjectGatherer:
     def set_url(self, url):
         self.url = url
 
-    def project_names_with_descriptions(self, limit=1):
+    def project_names_with_descriptions(self):
         r = requests.get(self.url)
         html_content = r.text
         soup = BeautifulSoup(html_content, 'lxml')
@@ -32,9 +32,6 @@ class ProjectGatherer:
                     path_list = a['href'].split('/')
                     project_names.append(path_list[-1])
                     project_urls.append(glo.github_url + a['href'])
-                    limit -= 1
-                    if limit == 0:
-                        break
         except:
             return []
 

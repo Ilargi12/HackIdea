@@ -8,42 +8,37 @@ import glo
 
 
 class DataCollector:
-    def __init__(self, topics, projects_per_topic):
+    def __init__(self, first, last):
         self.data = {}
-        self.projects_per_topic = projects_per_topic
-        self.topics = topics
+        self.first = first
+        self.last = last
         pass
 
-    def collect_store_data(self):
+    def collect_store_data(self, topics):
         self.data.clear()
 
-        topic_gatherer = TopicGatherer()
-        topics = topic_gatherer.gather_topics()
         project_gatherer = ProjectGatherer()
         description_acquirer = DescriptionAcquirer()
 
-        limit = self.topics
-        for topic in topics:
+        for i in range(self.first, self.last + 1):
+            topic = topics[i]
             name = topic[0]
             self.data[name] = {}
 
             project_gatherer.set_url(topic[1])
-            projects = project_gatherer.project_names_with_descriptions(limit=self.projects_per_topic)
+            projects = project_gatherer.project_names_with_descriptions()
 
             for project in projects:
                 project_name = project[0]
                 description_acquirer.set_url(project[1])
                 description = description_acquirer.acquire_description()
+                print('    ', project[0], '...descripted')
                 self.data[name][project_name] = description
 
             with open(os.path.join(glo.pickles_path, (name + '.pickle')), 'wb') as file:
                 pickle.dump(self.data[name], file)
 
-            print(name, '...')
-
-            limit -= 1
-            if limit == 0:
-                break
+            print(name, '...pickled')
 
     def get_data(self):
         return self.data
@@ -51,17 +46,14 @@ class DataCollector:
 
 if __name__ == '__main__':
     '''
-    argv[1] = how many topics to include
-    argv[2] = how many projects per topic to include
-    in order to get as many as possible provide 0 0, or some big numbers
+    argv[1] = first topic index
+    argv[2] = last topic index
     '''
-    topics = int(sys.argv[1])
-    projects_per_topic = int(sys.argv[2])
+    first = int(sys.argv[1])
+    last = int(sys.argv[2])
 
-    if topics == 0:
-        topics = 1000
-    if projects_per_topic == 0:
-        projects_per_topic = 1000
+    topic_gatherer = TopicGatherer()
+    topics = topic_gatherer.gather_topics()
 
-    data_collector = DataCollector(topics, projects_per_topic)
-    data_collector.collect_store_data()
+    data_collector = DataCollector(first, last)
+    data_collector.collect_store_data(topics)

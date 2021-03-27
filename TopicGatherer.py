@@ -32,3 +32,11 @@ class TopicGatherer:
 
         topic_data = list(zip(topic_names, topic_urls))
         return topic_data
+
+
+if __name__ == '__main__':
+    gatherer = TopicGatherer()
+    topics = gatherer.gather_topics()
+    print('Number of topics:', len(topics))
+    for topic in topics:
+        print(topic[0], topic[1])
